@@ -1,4 +1,4 @@
-# @version 0.3.6
+# @version 0.3.7
 
 from vyper.interfaces import ERC20
 
@@ -12,7 +12,7 @@ event PaymentReceived:
     amount: uint256
 
 
-FACTORY: immutable(Factory)
+FACTORY: public(immutable(Factory))
 
 
 @external
