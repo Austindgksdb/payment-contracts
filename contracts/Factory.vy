@@ -1,9 +1,9 @@
 # @version 0.3.7
 
 
-event NewDepositAddress:
-    user_id: bytes32
-    deposit_address: address
+event NewPaymentAddress:
+    account: address
+    payment_address: address
 
 event NewOwnerCommitted:
     owner: address
@@ -21,7 +21,9 @@ owner: public(address)
 future_owner: public(address)
 
 approved_tokens: public(HashMap[address, bool])
-payment_addresses: public(HashMap[bytes32, address])
+
+account_to_payment_address: public(HashMap[address, address])
+payment_address_to_account: public(HashMap[address, address])
 
 
 @external
@@ -31,12 +33,13 @@ def __init__(_owner: address, _proxy: address):
 
 
 @external
-def create_payment_address(_user_id: bytes32):
-    assert self.payment_addresses[_user_id] == empty(address)
+def create_payment_address(_account: address = msg.sender):
+    assert self.account_to_payment_address[_account] == empty(address)
     sweeper: address = create_copy_of(PROXY_IMPLEMENTATION)
-    self.payment_addresses[_user_id] = sweeper
+    self.account_to_payment_address[_account] = sweeper
+    self.payment_address_to_account[sweeper] = _account
 
-    log NewDepositAddress(_user_id, sweeper)
+    log NewPaymentAddress(_account, sweeper)
 
 
 @external
