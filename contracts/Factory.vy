@@ -5,6 +5,11 @@ event NewPaymentAddress:
     account: address
     payment_address: address
 
+event PaymentReceived:
+    account: address
+    token: address
+    amount: uint256
+
 event NewOwnerCommitted:
     owner: address
     new_owner: address
@@ -30,6 +35,16 @@ payment_address_to_account: public(HashMap[address, address])
 def __init__(_owner: address, _proxy: address):
     self.owner = _owner
     PROXY_IMPLEMENTATION = _proxy
+
+
+@external
+def payment_received(_token: address, _amount: uint256) -> bool:
+    account: address = self.payment_address_to_account[msg.sender]
+    assert account != empty(address), "Unknown caller"
+    assert self.approved_tokens[_token], "Invalid payment token"
+
+    log PaymentReceived(account, _token, _amount)
+    return True
 
 
 @external
