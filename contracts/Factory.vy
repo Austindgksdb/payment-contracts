@@ -1,4 +1,4 @@
-# @version 0.3.6
+# @version 0.3.7
 
 
 event NewDepositAddress:
@@ -14,6 +14,7 @@ event NewOwnerAccepted:
     owner: address
 
 
+PROXY_IMPLEMENTATION: public(immutable(address))
 sweeper_implementation: public(address)
 
 owner: public(address)
@@ -24,14 +25,15 @@ payment_addresses: public(HashMap[bytes32, address])
 
 
 @external
-def __init__(_owner: address):
+def __init__(_owner: address, _proxy: address):
     self.owner = _owner
+    PROXY_IMPLEMENTATION = _proxy
 
 
 @external
 def create_payment_address(_user_id: bytes32):
     assert self.payment_addresses[_user_id] == empty(address)
-    sweeper: address = create_forwarder_to(self.sweeper_implementation)
+    sweeper: address = create_copy_of(PROXY_IMPLEMENTATION)
     self.payment_addresses[_user_id] = sweeper
 
     log NewDepositAddress(_user_id, sweeper)
