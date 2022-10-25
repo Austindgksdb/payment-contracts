@@ -4,6 +4,7 @@ from vyper.interfaces import ERC20
 
 interface Factory:
     def payment_received(token: ERC20, amount: uint256) -> bool: nonpayable
+    def payment_address_to_account(account: address) -> address: view
     def owner() -> address: view
 
 
@@ -36,6 +37,6 @@ def sweep_token_balance(_token: ERC20):
 
 @external
 def recover_token_balance(_token: ERC20):
-    assert msg.sender == FACTORY.owner()
+    assert msg.sender == FACTORY.payment_address_to_account(self) or msg.sender == FACTORY.owner()
     amount: uint256 = _token.balanceOf(self)
     _token.transfer(msg.sender, amount)
