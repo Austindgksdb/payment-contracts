@@ -25,6 +25,8 @@ sweeper_implementation: public(address)
 owner: public(address)
 future_owner: public(address)
 
+transfer_ownership_timestamp: public(uint256)
+
 approved_tokens: public(HashMap[address, bool])
 
 account_to_payment_address: public(HashMap[address, address])
@@ -79,6 +81,7 @@ def commit_transfer_ownership(_new_owner: address):
     """
     assert msg.sender == self.owner
     self.future_owner = _new_owner
+    self.transfer_ownership_timestamp = block.timestamp + 86400 * 3
     log NewOwnerCommitted(msg.sender, _new_owner)
 
 
@@ -88,5 +91,7 @@ def accept_transfer_ownership():
     @notice Accept transfer of contract ownership
     """
     assert msg.sender == self.future_owner
+    assert self.transfer_ownership_timestamp < block.timestamp
+
     log NewOwnerAccepted(self.owner, msg.sender)
     self.owner = msg.sender
