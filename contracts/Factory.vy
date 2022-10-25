@@ -27,8 +27,12 @@ future_sweeper_implementation: public(address)
 owner: public(address)
 future_owner: public(address)
 
+receiver: public(address)
+future_receiver: public(address)
+
 transfer_ownership_timestamp: public(uint256)
 new_sweeper_timestamp: public(uint256)
+new_receiver_timestamp: public(uint256)
 
 approved_tokens: public(HashMap[address, bool])
 
@@ -84,6 +88,22 @@ def set_token_approvals(_tokens: DynArray[address, 100], _approved: bool):
 
     for token in _tokens:
         self.approved_tokens[token] = _approved
+
+
+@external
+def commit_new_receiver(_receiver: address):
+    assert msg.sender == self.owner
+
+    self.future_receiver = _receiver
+    self.new_receiver_timestamp = block.timestamp + 86400 * 3
+
+
+@external
+def accept_new_receiver():
+    assert msg.sender == self.owner
+    assert self.new_receiver_timestamp < block.timestamp
+
+    self.receiver = self.future_receiver
 
 
 @external
