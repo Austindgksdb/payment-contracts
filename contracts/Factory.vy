@@ -68,6 +68,14 @@ def create_payment_address(_account: address = msg.sender):
 
 
 @external
+def set_token_approvals(_tokens: DynArray[address, 100], _approved: bool):
+    assert msg.sender == self.owner
+
+    for token in _tokens:
+        self.approved_tokens[token] = _approved
+
+
+@external
 def commit_new_sweeper_implementation(_sweeper: address):
     assert msg.sender == self.owner
 
@@ -76,19 +84,11 @@ def commit_new_sweeper_implementation(_sweeper: address):
 
 
 @external
-def accept_new_sweeper_implementation():
+def finalize_new_sweeper_implementation():
     assert msg.sender == self.owner
     assert self.new_sweeper_timestamp < block.timestamp
 
     self.sweeper_implementation = self.future_sweeper_implementation
-
-
-@external
-def set_token_approvals(_tokens: DynArray[address, 100], _approved: bool):
-    assert msg.sender == self.owner
-
-    for token in _tokens:
-        self.approved_tokens[token] = _approved
 
 
 @external
@@ -100,7 +100,7 @@ def commit_new_receiver(_receiver: address):
 
 
 @external
-def accept_new_receiver():
+def finalize_new_receiver():
     assert msg.sender == self.owner
     assert self.new_receiver_timestamp < block.timestamp
 
