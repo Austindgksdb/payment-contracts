@@ -13,6 +13,7 @@ event PaymentReceived:
 event NewOwnerCommitted:
     owner: address
     new_owner: address
+    finalize_time: uint256
 
 event NewOwnerAccepted:
     old_owner: address
@@ -21,6 +22,7 @@ event NewOwnerAccepted:
 event NewSweeperCommitted:
     sweeper: address
     new_sweeper: address
+    finalize_time: uint256
 
 event NewSweeperSet:
     old_sweeper: address
@@ -29,11 +31,11 @@ event NewSweeperSet:
 event NewReceiverCommitted:
     receiver: address
     new_receiver: address
+    finalize_time: uint256
 
 event NewReceiverSet:
     old_receiver: address
     receiver: address
-
 
 
 ADMIN_ACTIONS_DELAY: constant(uint256) = 86400 * 3
@@ -96,10 +98,10 @@ def set_token_approvals(_tokens: DynArray[address, 100], _approved: bool):
 def commit_new_sweeper_implementation(_sweeper: address):
     assert msg.sender == self.owner
 
+    finalize_time: uint256 = block.timestamp + ADMIN_ACTIONS_DELAY
     self.future_sweeper_implementation = _sweeper
-    self.new_sweeper_timestamp = block.timestamp + ADMIN_ACTIONS_DELAY
-
-    log NewSweeperCommitted(self.sweeper_implementation, _sweeper)
+    self.new_sweeper_timestamp = finalize_time
+    log NewSweeperCommitted(self.sweeper_implementation, _sweeper, finalize_time)
 
 
 @external
@@ -115,9 +117,11 @@ def finalize_new_sweeper_implementation():
 def commit_new_receiver(_receiver: address):
     assert msg.sender == self.owner
 
+    finalize_time: uint256 = block.timestamp + ADMIN_ACTIONS_DELAY
     self.future_receiver = _receiver
-    self.new_receiver_timestamp = block.timestamp + ADMIN_ACTIONS_DELAY
-    log NewReceiverCommitted(self.receiver, _receiver)
+    self.new_receiver_timestamp = finalize_time
+
+    log NewReceiverCommitted(self.receiver, _receiver, finalize_time)
 
 
 @external
@@ -135,9 +139,11 @@ def commit_transfer_ownership(_new_owner: address):
     @notice Set a new contract owner
     """
     assert msg.sender == self.owner
+
+    finalize_time: uint256 = block.timestamp + ADMIN_ACTIONS_DELAY
     self.future_owner = _new_owner
-    self.transfer_ownership_timestamp = block.timestamp + ADMIN_ACTIONS_DELAY
-    log NewOwnerCommitted(msg.sender, _new_owner)
+    self.transfer_ownership_timestamp = finalize_time
+    log NewOwnerCommitted(msg.sender, _new_owner, finalize_time)
 
 
 @external
