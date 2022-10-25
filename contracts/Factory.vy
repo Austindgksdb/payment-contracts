@@ -19,6 +19,7 @@ event NewOwnerAccepted:
     owner: address
 
 
+ADMIN_ACTIONS_DELAY: constant(uint256) = 86400 * 3
 PROXY_IMPLEMENTATION: public(immutable(address))
 
 sweeper_implementation: public(address)
@@ -71,7 +72,7 @@ def commit_new_sweeper_implementation(_sweeper: address):
     assert msg.sender == self.owner
 
     self.future_sweeper_implementation = _sweeper
-    self.new_sweeper_timestamp = block.timestamp + 86400 * 3
+    self.new_sweeper_timestamp = block.timestamp + ADMIN_ACTIONS_DELAY
 
 
 @external
@@ -95,7 +96,7 @@ def commit_new_receiver(_receiver: address):
     assert msg.sender == self.owner
 
     self.future_receiver = _receiver
-    self.new_receiver_timestamp = block.timestamp + 86400 * 3
+    self.new_receiver_timestamp = block.timestamp + ADMIN_ACTIONS_DELAY
 
 
 @external
@@ -113,7 +114,7 @@ def commit_transfer_ownership(_new_owner: address):
     """
     assert msg.sender == self.owner
     self.future_owner = _new_owner
-    self.transfer_ownership_timestamp = block.timestamp + 86400 * 3
+    self.transfer_ownership_timestamp = block.timestamp + ADMIN_ACTIONS_DELAY
     log NewOwnerCommitted(msg.sender, _new_owner)
 
 
