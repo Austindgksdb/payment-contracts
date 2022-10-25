@@ -18,6 +18,23 @@ event NewOwnerAccepted:
     old_owner: address
     owner: address
 
+event NewSweeperCommitted:
+    sweeper: address
+    new_sweeper: address
+
+event NewSweeperSet:
+    old_sweeper: address
+    sweeper: address
+
+event NewReceiverCommitted:
+    receiver: address
+    new_receiver: address
+
+event NewReceiverSet:
+    old_receiver: address
+    receiver: address
+
+
 
 ADMIN_ACTIONS_DELAY: constant(uint256) = 86400 * 3
 PROXY_IMPLEMENTATION: public(immutable(address))
@@ -82,12 +99,15 @@ def commit_new_sweeper_implementation(_sweeper: address):
     self.future_sweeper_implementation = _sweeper
     self.new_sweeper_timestamp = block.timestamp + ADMIN_ACTIONS_DELAY
 
+    log NewSweeperCommitted(self.sweeper_implementation, _sweeper)
+
 
 @external
 def finalize_new_sweeper_implementation():
     assert msg.sender == self.owner
     assert self.new_sweeper_timestamp < block.timestamp
 
+    log NewSweeperSet(self.sweeper_implementation, self.future_sweeper_implementation)
     self.sweeper_implementation = self.future_sweeper_implementation
 
 
@@ -97,6 +117,7 @@ def commit_new_receiver(_receiver: address):
 
     self.future_receiver = _receiver
     self.new_receiver_timestamp = block.timestamp + ADMIN_ACTIONS_DELAY
+    log NewReceiverCommitted(self.receiver, _receiver)
 
 
 @external
@@ -104,6 +125,7 @@ def finalize_new_receiver():
     assert msg.sender == self.owner
     assert self.new_receiver_timestamp < block.timestamp
 
+    log NewReceiverSet(self.receiver, self.future_receiver)
     self.receiver = self.future_receiver
 
 
