@@ -20,12 +20,15 @@ event NewOwnerAccepted:
 
 
 PROXY_IMPLEMENTATION: public(immutable(address))
+
 sweeper_implementation: public(address)
+future_sweeper_implementation: public(address)
 
 owner: public(address)
 future_owner: public(address)
 
 transfer_ownership_timestamp: public(uint256)
+new_sweeper_timestamp: public(uint256)
 
 approved_tokens: public(HashMap[address, bool])
 
@@ -60,10 +63,19 @@ def create_payment_address(_account: address = msg.sender):
 
 
 @external
-def set_sweeper_implementation(_sweeper: address):
+def commit_new_sweeper_implementation(_sweeper: address):
     assert msg.sender == self.owner
 
-    self.sweeper_implementation = _sweeper
+    self.future_sweeper_implementation = _sweeper
+    self.new_sweeper_timestamp = block.timestamp + 86400 * 3
+
+
+@external
+def accept_new_sweeper_implementation():
+    assert msg.sender == self.owner
+    assert self.new_sweeper_timestamp < block.timestamp
+
+    self.sweeper_implementation = self.future_sweeper_implementation
 
 
 @external
