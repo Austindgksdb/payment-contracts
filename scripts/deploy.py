@@ -4,11 +4,12 @@ from brownie_tokens import ERC20
 
 def main():
     deployer = accounts[0]
+    receiver = accounts[1]
 
-    proxy_imp = MinimalProxy.deploy(deployer.get_deployment_address(deployer.nonce+1), {'from': deployer})
-    factory = Factory.deploy(deployer, proxy_imp, {'from': deployer})
-    sweeper_imp = Sweeper.deploy(factory, {'from': deployer})
-    factory.set_sweeper_implementation(sweeper_imp, {'from': deployer})
+    factory_addr = deployer.get_deployment_address(deployer.nonce+2)
+    proxy_imp = MinimalProxy.deploy(factory_addr, {'from': deployer})
+    sweeper_imp = Sweeper.deploy(factory_addr, {'from': deployer})
+    factory = Factory.deploy(deployer, receiver, sweeper_imp, proxy_imp, {'from': deployer})
 
 
 def send_token_test():
