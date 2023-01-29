@@ -61,8 +61,10 @@ payment_address_to_account: public(HashMap[address, address])
 
 
 @external
-def __init__(_owner: address, _proxy: address):
+def __init__(_owner: address, _receiver: address, _sweeper: address, _proxy: address):
     self.owner = _owner
+    self.receiver = _receiver
+    self.sweeper_implementation = _sweeper
     PROXY_IMPLEMENTATION = _proxy
 
 
