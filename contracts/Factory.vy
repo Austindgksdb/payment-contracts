@@ -54,7 +54,8 @@ transfer_ownership_timestamp: public(uint256)
 new_sweeper_timestamp: public(uint256)
 new_receiver_timestamp: public(uint256)
 
-approved_tokens: public(HashMap[address, bool])
+is_approved_token: public(HashMap[address, bool])
+approved_tokens: DynArray[address, 10]
 
 account_to_payment_address: public(HashMap[address, address])
 payment_address_to_account: public(HashMap[address, address])
@@ -68,11 +69,17 @@ def __init__(_owner: address, _receiver: address, _sweeper: address, _proxy: add
     PROXY_IMPLEMENTATION = _proxy
 
 
+@view
+@external
+def get_approved_tokens() -> DynArray[address, 10]:
+    return self.approved_tokens
+
+
 @external
 def payment_received(_token: address, _amount: uint256) -> bool:
     account: address = self.payment_address_to_account[msg.sender]
     assert account != empty(address), "Unknown caller"
-    assert self.approved_tokens[_token], "Invalid payment token"
+    assert self.is_approved_token[_token], "Invalid payment token"
 
     log PaymentReceived(account, _token, _amount)
     return True
@@ -89,11 +96,31 @@ def create_payment_address(_account: address = msg.sender):
 
 
 @external
-def set_token_approvals(_tokens: DynArray[address, 100], _approved: bool):
+def set_token_approvals(_tokens: DynArray[address, 10], _approved: bool):
     assert msg.sender == self.owner
 
+    approved_tokens: DynArray[address, 10] = []
+    if not _approved:
+        approved_tokens = self.approved_tokens
+
     for token in _tokens:
-        self.approved_tokens[token] = _approved
+        if self.is_approved_token[token] != _approved:
+            self.is_approved_token[token] = _approved
+
+            if _approved:
+                self.approved_tokens.append(token)
+            else:
+                for i in range(10):
+                    if approved_tokens[i] == token:
+                        if i + 1 == len(approved_tokens):
+                            approved_tokens.pop()
+                        else:
+                            approved_tokens[i] = approved_tokens.pop()
+                        break
+
+    if not _approved:
+        self.approved_tokens = approved_tokens
+
 
 
 @external
