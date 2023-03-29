@@ -6,7 +6,7 @@ event NewPaymentAddress:
     payment_address: address
 
 event PaymentReceived:
-    account: address
+    account: indexed(address)
     token: address
     amount: uint256
 
