@@ -9,6 +9,12 @@ interface Factory:
     def receiver() -> address: view
 
 
+event TokenBalanceRecovered:
+    receiver: address
+    token: address
+    amount: uint256
+
+
 FACTORY: public(immutable(Factory))
 
 
@@ -41,3 +47,5 @@ def recover_token_balance(_token: ERC20):
     assert msg.sender == FACTORY.payment_address_to_account(self) or msg.sender == FACTORY.owner()
     amount: uint256 = _token.balanceOf(self)
     _token.transfer(msg.sender, amount)
+
+    log TokenBalanceRecovered(msg.sender, _token.address, amount)
