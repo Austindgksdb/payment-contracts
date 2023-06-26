@@ -87,8 +87,7 @@ def payment_received(_token: address, _amount: uint256) -> bool:
 
 @external
 def create_payment_address(_account: address = msg.sender):
-    assert self.account_to_payment_address[_account] == empty(address)
-    sweeper: address = create_copy_of(PROXY_IMPLEMENTATION)
+    sweeper: address = create_copy_of(PROXY_IMPLEMENTATION, salt=convert(_account, bytes32))
     self.account_to_payment_address[_account] = sweeper
     self.payment_address_to_account[sweeper] = _account
 
