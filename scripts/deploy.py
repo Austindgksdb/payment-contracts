@@ -4,12 +4,13 @@ from brownie_tokens import ERC20
 
 def main():
     deployer = accounts[0]
-    receiver = accounts[1]
+    receiver = "0x303cCAe16140B5e784F048d1d06B0534eB789F9D"
+    owner = "0x14059D8D33DBA36aa2A74ed7A52835DA04450B9d"
 
     factory_addr = deployer.get_deployment_address(deployer.nonce+2)
     proxy_imp = MinimalProxy.deploy(factory_addr, {'from': deployer})
     sweeper_imp = Sweeper.deploy(factory_addr, {'from': deployer})
-    factory = Factory.deploy(deployer, receiver, sweeper_imp, proxy_imp, {'from': deployer})
+    factory = Factory.deploy(owner, receiver, sweeper_imp, proxy_imp, {'from': deployer})
 
 
 def send_token_test():
@@ -21,7 +22,7 @@ def send_token_test():
     token = ERC20()
     factory = Factory[0]
 
-    factory.set_token_approvals([token], True, {'from': deployer})
+    factory.set_token_approvals([token], True, {'from': factory.owner()})
     factory.create_payment_address({'from': alice})
     sweeper = Sweeper.at(factory.account_to_payment_address(alice))
 
