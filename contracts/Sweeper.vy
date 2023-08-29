@@ -1,4 +1,7 @@
 # @version 0.3.7
+# @title LlamaNodes Token Sweeper
+# @license MIT
+
 
 from vyper.interfaces import ERC20
 

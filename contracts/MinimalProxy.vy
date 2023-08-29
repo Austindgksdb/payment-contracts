@@ -1,4 +1,6 @@
 # @version 0.3.7
+# @title LlamaNodes Minimal Proxy
+# @license MIT
 
 
 interface Factory:

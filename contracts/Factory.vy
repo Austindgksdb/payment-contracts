@@ -1,4 +1,6 @@
 # @version 0.3.7
+# @title LlamaNodes Payments Factory
+# @license MIT
 
 
 event NewPaymentAddress:
